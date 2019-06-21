@@ -1,44 +1,58 @@
-import {Component, Input, AfterViewInit, ElementRef, ChangeDetectorRef, OnDestroy, ViewChild, EventEmitter, Renderer } from "@angular/core";
+import {
+    Component,
+    Input,
+    AfterViewInit,
+    ElementRef,
+    ChangeDetectorRef,
+    OnDestroy,
+    ViewChild,
+    EventEmitter,
+    Renderer
+} from "@angular/core";
 import {Popover} from "./Popover";
 
 @Component({
     selector: "popover-content",
     template: `
-<div #popoverDiv class="popover {{ effectivePlacement }}"
-     [style.top]="top + 'px'"
-     [style.left]="left + 'px'"
-     [class.in]="isIn"
-     [class.fade]="animation"
-     style="display: block"
-     role="popover">
-    <div [hidden]="!closeOnMouseOutside" class="virtual-area"></div>
-    <div class="arrow"></div> 
-    <h3 class="popover-title" [hidden]="!title">{{ title }}</h3>
-    <div class="popover-content">
-        <ng-content></ng-content>
-        {{ content }}
-    </div> 
-</div>
-`,
+        <div #popoverDiv class="popover {{ effectivePlacement }}"
+             [style.top]="top + 'px'"
+             [style.left]="left + 'px'"
+             [class.in]="isIn"
+             [class.fade]="animation"
+             style="display: block"
+             role="popover">
+            <div [hidden]="!closeOnMouseOutside" class="virtual-area"></div>
+            <div class="arrow"></div>
+            <h3 class="popover-title" [hidden]="!title">{{ title }}</h3>
+            <div class="popover-content">
+                <ng-content></ng-content>
+                {{ content }}
+            </div>
+        </div>
+    `,
     styles: [`
-.popover .virtual-area {
-    height: 11px;
-    width: 100%;
-    position: absolute;
-}
-.popover.top .virtual-area {
-    bottom: -11px; 
-}
-.popover.bottom .virtual-area {
-    top: -11px; 
-}
-.popover.left .virtual-area {
-    right: -11px; 
-}
-.popover.right .virtual-area {
-    left: -11px; 
-}
-`]
+        .popover .virtual-area {
+            height: 11px;
+            width: 100%;
+            position: absolute;
+        }
+
+        .popover.top .virtual-area {
+            bottom: -11px;
+        }
+
+        .popover.bottom .virtual-area {
+            top: -11px;
+        }
+
+        .popover.left .virtual-area {
+            right: -11px;
+        }
+
+        .popover.right .virtual-area {
+            left: -11px;
+        }
+    `]
 })
 export class PopoverContent implements AfterViewInit, OnDestroy {
 
@@ -53,7 +67,7 @@ export class PopoverContent implements AfterViewInit, OnDestroy {
     content: string;
 
     @Input()
-    placement: "top"|"bottom"|"left"|"right"|"auto"|"auto top"|"auto bottom"|"auto left"|"auto right" = "bottom";
+    placement: "top" | "bottom" | "left" | "right" | "auto" | "auto top" | "auto bottom" | "auto left" | "auto right" = "bottom";
 
     @Input()
     title: string;
@@ -112,11 +126,12 @@ export class PopoverContent implements AfterViewInit, OnDestroy {
 
     listenClickFunc: any;
     listenMouseFunc: any;
+
     ngAfterViewInit(): void {
         if (this.closeOnClickOutside)
-            this.listenClickFunc = this.renderer.listenGlobal("document", "mousedown", (event: any) => this.onDocumentMouseDown(event));               
+            this.listenClickFunc = this.renderer.listenGlobal("document", "mousedown", (event: any) => this.onDocumentMouseDown(event));
         if (this.closeOnMouseOutside)
-            this.listenMouseFunc = this.renderer.listenGlobal("document", "mouseover", (event: any) => this.onDocumentMouseDown(event));  
+            this.listenMouseFunc = this.renderer.listenGlobal("document", "mouseover", (event: any) => this.onDocumentMouseDown(event));
 
         this.show();
         this.cdr.detectChanges();
@@ -207,7 +222,8 @@ export class PopoverContent implements AfterViewInit, OnDestroy {
             case "left":
                 targetElPos = {
                     top: shiftHeight[pos1](),
-                    left: hostElPos.left - targetElWidth
+                    // left: hostElPos.left - targetElWidth // (lib default)
+                    left: hostElPos.left - 295 // override by @Osama Riaz
                 };
                 break;
 
@@ -230,7 +246,7 @@ export class PopoverContent implements AfterViewInit, OnDestroy {
     }
 
     protected position(nativeEl: HTMLElement): { width: number, height: number, top: number, left: number } {
-        let offsetParentBCR = { top: 0, left: 0 };
+        let offsetParentBCR = {top: 0, left: 0};
         const elBCR = this.offset(nativeEl);
         const offsetParentEl = this.parentOffsetEl(nativeEl);
         if (offsetParentEl !== window.document) {
@@ -238,7 +254,6 @@ export class PopoverContent implements AfterViewInit, OnDestroy {
             offsetParentBCR.top += offsetParentEl.clientTop - offsetParentEl.scrollTop;
             offsetParentBCR.left += offsetParentEl.clientLeft - offsetParentEl.scrollLeft;
         }
-
         const boundingClientRect = nativeEl.getBoundingClientRect();
         return {
             width: boundingClientRect.width || nativeEl.offsetWidth,
@@ -270,7 +285,7 @@ export class PopoverContent implements AfterViewInit, OnDestroy {
     }
 
     protected isStaticPositioned(nativeEl: HTMLElement): boolean {
-        return (this.getStyle(nativeEl, "position") || "static" ) === "static";
+        return (this.getStyle(nativeEl, "position") || "static") === "static";
     }
 
     protected parentOffsetEl(nativeEl: HTMLElement): any {
